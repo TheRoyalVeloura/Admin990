@@ -104,7 +104,6 @@
         .discount-group { display: flex; gap: 10px; }
         .season-badge { background: #6c757d; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; margin-right: 2px; display: inline-block; }
         
-        /* New Style for Campaign Table */
         .rank-badge {
             background: #f39c12; color: white; width: 30px; height: 30px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center; font-weight: bold;
@@ -145,7 +144,6 @@
                     <i class="fas fa-bullhorn"></i> অ্যাপ বিজ্ঞাপন (Popup)
                 </div>
 
-                <!-- NEW BUTTON: Top Buyers -->
                 <div class="menu-item" onclick="showSection('top-buyers')">
                     <i class="fas fa-trophy"></i> টপ বায়ার (Campaign)
                 </div>
@@ -219,7 +217,7 @@
                     </div>
                 </div>
 
-                <!-- NEW SECTION: Top Buyers -->
+                <!-- Top Buyers -->
                 <div id="top-buyers" class="section">
                     <h2>🏆 Campaign - টপ বায়ার লিস্ট</h2>
                     <p style="color: #666; margin-bottom: 20px;">এখানে অ্যাপের ক্যাম্পেইন অনুযায়ী যারা সবচেয়ে বেশি টাকার অর্ডার করেছে তাদের র‍্যাঙ্ক দেখা যাবে।</p>
@@ -276,7 +274,7 @@
                     </div>
                 </div>
 
-                <!-- Add Product Section -->
+                <!-- Add Product Section (EDITED) -->
                 <div id="add-product" class="section">
                     <h2>নতুন প্রডাক্ট অ্যাড করুন</h2>
                     <form id="addProductForm">
@@ -332,10 +330,18 @@
                             </div>
                         </div>
 
+                        <!-- MODIFIED PRODUCT CODE SECTION START -->
                         <div class="form-group">
-                            <label>প্রডাক্ট কোড</label>
-                            <input type="text" id="p-code" class="form-control" required readonly style="background-color: #e9ecef; font-weight: bold; color: var(--primary);">
+                            <label>প্রডাক্ট কোড (নিজে লিখুন অথবা অটো জেনারেট)</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="text" id="p-code" class="form-control" required placeholder="কোড লিখুন" style="font-weight: bold; color: var(--primary);">
+                                <button type="button" class="btn btn-info" onclick="generateUniqueProductCode()" style="width: auto; padding: 0 15px;" title="অটো কোড জেনারেট করুন">
+                                    <i class="fas fa-random"></i> Auto
+                                </button>
+                            </div>
                         </div>
+                        <!-- MODIFIED PRODUCT CODE SECTION END -->
+
                         <div class="form-group">
                             <label>সর্টিং নাম্বার</label>
                             <input type="number" id="p-sort" class="form-control" value="0">
@@ -617,7 +623,7 @@
                 if(sectionId === 'withdrawals') loadWithdrawals();
                 if(sectionId === 'add-product') generateUniqueProductCode();
                 if(sectionId === 'popup-settings') loadPopupSettings();
-                if(sectionId === 'top-buyers') loadTopBuyers(); // New Feature Trigger
+                if(sectionId === 'top-buyers') loadTopBuyers();
             }
         }
         function toggleSubmenu(id) { document.getElementById(id).classList.toggle('show'); }
@@ -625,15 +631,13 @@
         function generateUniqueProductCode() { document.getElementById('p-code').value = 'SF-' + Math.floor(100000 + Math.random() * 900000); }
 
         // ==========================================
-        //  NEW FEATURE: TOP BUYERS (CAMPAIGN) LOGIC
+        //  TOP BUYERS
         // ==========================================
         function loadTopBuyers() {
             const tbody = document.querySelector('#top-buyers-table tbody');
             tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">ডেটা লোড হচ্ছে...</td></tr>';
             
-            // We need all orders to calculate this. Ensure orders are loaded.
             if(universalOrders.size === 0) {
-                // Fetch orders first if not already loaded
                  db.ref('orders').once('value', snapshot => {
                     if(snapshot.exists()) {
                         snapshot.forEach(child => {
@@ -652,10 +656,9 @@
             const buyerMap = new Map();
 
             universalOrders.forEach(order => {
-                // Only count valid orders (Completed, Accepted, Delivered)
                 if(order.status === 'canceled' || order.status === 'rejected') return;
 
-                const key = order.phone || order.customerName; // Use phone as unique key
+                const key = order.phone || order.customerName; 
                 if(!key) return;
 
                 if(!buyerMap.has(key)) {
@@ -671,11 +674,9 @@
                 const buyer = buyerMap.get(key);
                 buyer.totalSpent += parseFloat(order.totalPrice) || 0;
                 buyer.orderCount += 1;
-                // Update address to latest if available
                 if(order.address && order.address.length > 5) buyer.address = order.address; 
             });
 
-            // Convert map to array and sort by totalSpent
             const sortedBuyers = Array.from(buyerMap.values()).sort((a, b) => b.totalSpent - a.totalSpent);
 
             const tbody = document.querySelector('#top-buyers-table tbody');
@@ -952,9 +953,6 @@
             else renderOrdersTable();
         }
 
-        // ==========================================
-        //  MODIFIED: VIEW ORDER (For 50% Discount Feature)
-        // ==========================================
         function viewOrder(id) {
             const order = universalOrders.get(id);
             if(!order) return alert("Error finding order");
@@ -969,15 +967,7 @@
                     displayCode = productMap.get(p.productId) || 'N/A';
                 }
 
-                // Check for 50% discount logic (approximate or by flag)
-                // Logic: If user buys 5000tk, they get ONE item at 50%.
-                // We check if any item looks like a special offer (e.g. price is remarkably low for item)
-                // OR we can just check if total order > 5000 previously.
-                // Here we assume if an item is marked as offer or has 50% discount tag from app.
-                
                 let offerBadge = '';
-                // Simple Logic: If app sends a flag OR we assume custom check
-                // For now, let's look for a flag or significant price drop if oldPrice exists
                 if(p.discountType === '50_percent_offer' || p.isCampaignReward || (p.discount && parseInt(p.discount) >= 45)) {
                    offerBadge = `<div class="offer-highlight">💥 50% OFF OFFER ITEM</div>`;
                    hasDiscountOffer = true;
@@ -994,7 +984,6 @@
                     </div>`;
             });
 
-            // Extra Warning if total price > 5000 (Potentially eligible for next order)
             let extraNote = '';
             if(parseFloat(order.totalPrice) >= 5000) {
                 extraNote = `<div style="background:#e8f5e9; color:#27ae60; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #a5d6a7;">
