@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>অ্যাডমিন প্যানেল - সুপার ফিক্সড (Secure)</title>
+    <title>অ্যাডমিন প্যানেল - সুপার ফিক্সড (Linked with App)</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -102,8 +102,17 @@
         .type-auto { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
         .type-drop { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
         .discount-group { display: flex; gap: 10px; }
-        /* Season Badge Style */
         .season-badge { background: #6c757d; color: white; font-size: 0.7rem; padding: 2px 6px; border-radius: 3px; margin-right: 2px; display: inline-block; }
+        
+        /* New Style for Campaign Table */
+        .rank-badge {
+            background: #f39c12; color: white; width: 30px; height: 30px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-weight: bold;
+        }
+        .offer-highlight {
+            background-color: #ffefef; border: 1px solid #ffcccc; padding: 5px; border-radius: 5px; margin-top: 5px;
+            color: #d63031; font-weight: bold; font-size: 0.85rem; display: inline-block;
+        }
     </style>
 </head>
 <body>
@@ -131,6 +140,16 @@
                 <div class="menu-item active" onclick="showSection('dashboard')">
                     <i class="fas fa-tachometer-alt"></i> ড্যাশবোর্ড
                 </div>
+                
+                <div class="menu-item" onclick="showSection('popup-settings')">
+                    <i class="fas fa-bullhorn"></i> অ্যাপ বিজ্ঞাপন (Popup)
+                </div>
+
+                <!-- NEW BUTTON: Top Buyers -->
+                <div class="menu-item" onclick="showSection('top-buyers')">
+                    <i class="fas fa-trophy"></i> টপ বায়ার (Campaign)
+                </div>
+
                 <div class="menu-item" onclick="showSection('add-product')">
                     <i class="fas fa-plus-circle"></i> অ্যাড প্রডাক্ট
                 </div>
@@ -200,6 +219,63 @@
                     </div>
                 </div>
 
+                <!-- NEW SECTION: Top Buyers -->
+                <div id="top-buyers" class="section">
+                    <h2>🏆 Campaign - টপ বায়ার লিস্ট</h2>
+                    <p style="color: #666; margin-bottom: 20px;">এখানে অ্যাপের ক্যাম্পেইন অনুযায়ী যারা সবচেয়ে বেশি টাকার অর্ডার করেছে তাদের র‍্যাঙ্ক দেখা যাবে।</p>
+                    <div style="overflow-x:auto;">
+                        <table id="top-buyers-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>নাম</th>
+                                    <th>ফোন নাম্বার</th>
+                                    <th>ঠিকানা (Address)</th>
+                                    <th>মোট অর্ডার (টাকা)</th>
+                                    <th>অর্ডার সংখ্যা</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="6" style="text-align:center;">লোড হচ্ছে...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Popup Settings Section -->
+                <div id="popup-settings" class="section">
+                    <h2>অ্যাপ পপ-আপ (Popup) বিজ্ঞাপন সেটিংস</h2>
+                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 600px;">
+                        <p style="color: #666; margin-bottom: 20px;">এখানে ছবি এবং লেখা আপলোড করলে অ্যাপের ইউজাররা অ্যাপ ওপেন করলেই এই বিজ্ঞাপন দেখতে পাবে।</p>
+                        
+                        <div class="form-group">
+                            <label>বিজ্ঞাপনের ছবি আপলোড করুন</label>
+                            <input type="file" id="popup-file" class="form-control" accept="image/*" onchange="previewPopupImage()">
+                            <div style="margin-top: 10px; width: 100%; height: 200px; border: 1px dashed #ddd; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #f9f9f9;">
+                                <img id="popup-preview" src="" style="max-width: 100%; max-height: 100%; display: none;">
+                                <span id="popup-placeholder" style="color: #999;">কোনো ছবি নেই</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>বিজ্ঞাপনের লেখা (মেসেজ)</label>
+                            <textarea id="popup-text" class="form-control" placeholder="এখানে বিজ্ঞাপনের অফার বা বিস্তারিত লিখুন..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>স্ট্যাটাস</label>
+                            <select id="popup-status" class="form-control">
+                                <option value="active">Active (চালু)</option>
+                                <option value="inactive">Inactive (বন্ধ)</option>
+                            </select>
+                            <small style="color:blue;">নোট: অ্যাপে পপআপ দেখাতে ছবি বা টেক্সট যেকোনো একটি অবশ্যই থাকতে হবে।</small>
+                        </div>
+
+                        <button onclick="savePopupSettings()" class="btn btn-success" style="width: 100%;">পপ-আপ আপডেট করুন</button>
+                        <div class="loader" id="popup-loader"></div>
+                    </div>
+                </div>
+
                 <!-- Add Product Section -->
                 <div id="add-product" class="section">
                     <h2>নতুন প্রডাক্ট অ্যাড করুন</h2>
@@ -228,7 +304,19 @@
                             <input type="text" id="p-category" class="form-control" required>
                         </div>
 
-                        <!-- NEW SEASON FEATURE START -->
+                        <div class="form-group">
+                            <label>জেন্ডার (কার জন্য?)</label>
+                            <div class="checkbox-group" style="border:1px solid #ddd; padding:10px; border-radius:5px; background:white;">
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 16px;">
+                                    <input type="checkbox" name="gender" value="Men"> 👨 Men (পুরুষ)
+                                </label>
+                                <label style="cursor: pointer; display: flex; align-items: center; gap: 5px; font-size: 16px;">
+                                    <input type="checkbox" name="gender" value="Women"> 👩 Women (মহিলা)
+                                </label>
+                                <small style="display:block; width:100%; color:#666; margin-top:5px;">* দুইটা সিলেক্ট করলে "Both" বা উভয় হিসাবে গণ্য হবে।</small>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>সিজন (Season) - <small style="color: #666;">অপশনাল</small></label>
                             <div class="checkbox-group" style="border:1px solid #ddd; padding:10px; border-radius:5px; background:white;">
@@ -243,7 +331,6 @@
                                 </label>
                             </div>
                         </div>
-                        <!-- NEW SEASON FEATURE END -->
 
                         <div class="form-group">
                             <label>প্রডাক্ট কোড</label>
@@ -299,11 +386,11 @@
                 <div id="all-products" class="section">
                     <h2>সকল প্রডাক্ট</h2>
                     <div class="form-group">
-                        <input type="text" id="search-product-code" class="form-control" placeholder="নাম, কোড বা সিজন (যেমন: Winter) দিয়ে খুঁজুন..." onkeyup="filterProducts()">
+                        <input type="text" id="search-product-code" class="form-control" placeholder="নাম, কোড, সিজন বা জেন্ডার দিয়ে খুঁজুন..." onkeyup="filterProducts()">
                     </div>
                     <div style="overflow-x:auto;">
                         <table id="products-table">
-                            <thead><tr><th>ছবি/মিডিয়া</th><th>নাম & সিজন</th><th>কোড</th><th>দাম</th><th>অ্যাকশন</th></tr></thead>
+                            <thead><tr><th>ছবি/মিডিয়া</th><th>নাম & তথ্য</th><th>কোড</th><th>দাম</th><th>অ্যাকশন</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
@@ -378,19 +465,6 @@
         </div>
     </div>
 
-    <div id="editProductModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeModal('editProductModal')">&times;</span>
-            <h3>প্রডাক্ট এডিট করুন</h3>
-            <form id="editProductForm">
-                <input type="hidden" id="ep-id">
-                <div class="form-group"><label>নাম</label><input type="text" id="ep-name" class="form-control"></div>
-                <div class="form-group"><label>দাম</label><input type="number" id="ep-price" class="form-control"></div>
-                <button type="submit" class="btn btn-primary">আপডেট করুন</button>
-            </form>
-        </div>
-    </div>
-
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script> 
@@ -399,17 +473,17 @@
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyB-3JLfOb3aAz_eFu6Ko98ogaupUdq1SO4",
-            authDomain: "world123123-975b6.firebaseapp.com",
-            databaseURL: "https://world123123-975b6-default-rtdb.firebaseio.com",
-            projectId: "world123123-975b6",
-            storageBucket: "world123123-975b6.firebasestorage.app",
-            messagingSenderId: "527799677210",
-            appId: "1:527799677210:web:651dfbfa367e6f31b1bca3",
-            measurementId: "G-EBZYCNHCXS"
+            apiKey: "AIzaSyDhdr92wBIWGowF4_YQuZJ1NcHAJO7gkBE",
+            authDomain: "e-comarce-9ec9f.firebaseapp.com",
+            databaseURL: "https://e-comarce-9ec9f-default-rtdb.firebaseio.com",
+            projectId: "e-comarce-9ec9f",
+            storageBucket: "e-comarce-9ec9f.firebasestorage.app",
+            messagingSenderId: "429520181562",
+            appId: "1:429520181562:web:c0660534faf74294ee1803",
+            measurementId: "G-MKK5GK1TDP"
         };
-        const cloudName = "dmnyoc0b4"; 
-        const uploadPreset = "Salman32"; 
+        const cloudName = "dv8tofhrk"; 
+        const uploadPreset = "salman998550"; 
 
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); 
@@ -451,11 +525,7 @@
                 .catch((error) => {
                     var errorCode = error.code;
                     var errorMessage = error.message;
-                    if(errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
-                        errorMsg.innerText = "ভুল ইমেইল বা পাসওয়ার্ড";
-                    } else {
-                        errorMsg.innerText = errorMessage;
-                    }
+                    errorMsg.innerText = errorMessage;
                     errorMsg.style.display = 'block';
                 });
         }
@@ -463,8 +533,6 @@
         function handleLogout() {
             auth.signOut().then(() => {
                 location.reload();
-            }).catch((error) => {
-                alert("Logout Error: " + error.message);
             });
         }
 
@@ -497,7 +565,8 @@
                     price: data.price,
                     qty: data.quantity || data.qty || 1,
                     code: data.code || data.productCode || 'N/A',
-                    productId: data.productId
+                    productId: data.productId,
+                    discount: data.discount || 0 
                 });
             } else if (data.products && Array.isArray(data.products)) {
                 products = data.products;
@@ -547,13 +616,173 @@
                 if(sectionId === 'users') loadUsers();
                 if(sectionId === 'withdrawals') loadWithdrawals();
                 if(sectionId === 'add-product') generateUniqueProductCode();
+                if(sectionId === 'popup-settings') loadPopupSettings();
+                if(sectionId === 'top-buyers') loadTopBuyers(); // New Feature Trigger
             }
         }
         function toggleSubmenu(id) { document.getElementById(id).classList.toggle('show'); }
         function closeModal(id) { document.getElementById(id).classList.remove('show'); }
         function generateUniqueProductCode() { document.getElementById('p-code').value = 'SF-' + Math.floor(100000 + Math.random() * 900000); }
 
-        // --- UPDATED: LoadProducts to read 'season' as string ---
+        // ==========================================
+        //  NEW FEATURE: TOP BUYERS (CAMPAIGN) LOGIC
+        // ==========================================
+        function loadTopBuyers() {
+            const tbody = document.querySelector('#top-buyers-table tbody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">ডেটা লোড হচ্ছে...</td></tr>';
+            
+            // We need all orders to calculate this. Ensure orders are loaded.
+            if(universalOrders.size === 0) {
+                // Fetch orders first if not already loaded
+                 db.ref('orders').once('value', snapshot => {
+                    if(snapshot.exists()) {
+                        snapshot.forEach(child => {
+                            const order = normalizeOrderData(child.val(), child.key, 'rtdb');
+                            universalOrders.set(child.key, order);
+                        });
+                        calculateTopBuyers();
+                    }
+                });
+            } else {
+                calculateTopBuyers();
+            }
+        }
+
+        function calculateTopBuyers() {
+            const buyerMap = new Map();
+
+            universalOrders.forEach(order => {
+                // Only count valid orders (Completed, Accepted, Delivered)
+                if(order.status === 'canceled' || order.status === 'rejected') return;
+
+                const key = order.phone || order.customerName; // Use phone as unique key
+                if(!key) return;
+
+                if(!buyerMap.has(key)) {
+                    buyerMap.set(key, {
+                        name: order.customerName,
+                        phone: order.phone,
+                        address: order.address,
+                        totalSpent: 0,
+                        orderCount: 0
+                    });
+                }
+
+                const buyer = buyerMap.get(key);
+                buyer.totalSpent += parseFloat(order.totalPrice) || 0;
+                buyer.orderCount += 1;
+                // Update address to latest if available
+                if(order.address && order.address.length > 5) buyer.address = order.address; 
+            });
+
+            // Convert map to array and sort by totalSpent
+            const sortedBuyers = Array.from(buyerMap.values()).sort((a, b) => b.totalSpent - a.totalSpent);
+
+            const tbody = document.querySelector('#top-buyers-table tbody');
+            tbody.innerHTML = '';
+
+            if(sortedBuyers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">কোনো ডেটা পাওয়া যায়নি</td></tr>';
+                return;
+            }
+
+            sortedBuyers.forEach((buyer, index) => {
+                let badgeColor = '#ddd';
+                if(index === 0) badgeColor = '#f1c40f'; // Gold
+                else if(index === 1) badgeColor = '#95a5a6'; // Silver
+                else if(index === 2) badgeColor = '#cd7f32'; // Bronze
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><div class="rank-badge" style="background:${badgeColor}">${index + 1}</div></td>
+                    <td><b>${buyer.name}</b></td>
+                    <td>${buyer.phone}</td>
+                    <td><small>${buyer.address || 'N/A'}</small></td>
+                    <td>৳${buyer.totalSpent.toFixed(2)}</td>
+                    <td>${buyer.orderCount} টি</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+
+        // ==========================================
+        //  POPUP SETTINGS LOGIC
+        // ==========================================
+        function previewPopupImage() {
+            const file = document.getElementById('popup-file').files[0];
+            if(file) {
+                const url = URL.createObjectURL(file);
+                document.getElementById('popup-preview').src = url;
+                document.getElementById('popup-preview').style.display = 'block';
+                document.getElementById('popup-placeholder').style.display = 'none';
+            }
+        }
+
+        function loadPopupSettings() {
+            db.ref('settings/promo').once('value', snap => {
+                if(snap.exists()) {
+                    const data = snap.val();
+                    document.getElementById('popup-text').value = data.text || ''; 
+                    document.getElementById('popup-status').value = data.status || 'inactive';
+                    if(data.image) {
+                        document.getElementById('popup-preview').src = data.image;
+                        document.getElementById('popup-preview').style.display = 'block';
+                        document.getElementById('popup-placeholder').style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        async function savePopupSettings() {
+            const text = document.getElementById('popup-text').value;
+            const status = document.getElementById('popup-status').value;
+            const fileInput = document.getElementById('popup-file');
+            const loader = document.getElementById('popup-loader');
+
+            loader.style.display = 'block';
+
+            let imageUrl = '';
+            
+            if(fileInput.files.length > 0) {
+                const fd = new FormData();
+                fd.append('file', fileInput.files[0]);
+                fd.append('upload_preset', uploadPreset);
+                try {
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {method:'POST', body:fd});
+                    const d = await res.json();
+                    imageUrl = d.secure_url;
+                } catch(e) {
+                    alert('Image Upload Failed');
+                    loader.style.display = 'none';
+                    return;
+                }
+            } else {
+                const existingImg = document.getElementById('popup-preview').src;
+                if(existingImg && !existingImg.includes(window.location.href)) {
+                    imageUrl = existingImg;
+                }
+            }
+
+            const popupData = {
+                text: text,           
+                status: status,
+                image: imageUrl,      
+                updatedAt: Date.now()
+            };
+
+            db.ref('settings/promo').set(popupData)
+                .then(() => {
+                    alert('পপ-আপ আপডেট সফল হয়েছে! (এখন অ্যাপে দেখা যাবে)');
+                    loader.style.display = 'none';
+                })
+                .catch(err => {
+                    alert('Error: ' + err.message);
+                    loader.style.display = 'none';
+                });
+        }
+
+        // --- LoadProducts ---
         function loadProducts() {
             db.ref('products').on('value', snap => {
                 const tbody = document.querySelector('#products-table tbody');
@@ -567,28 +796,33 @@
 
                     const img = (p.media && p.media.length) ? `<img src="${p.media[0]}" class="table-img">` : 'No Img';
                     
-                    // FIXED: Season processing to handle STRING
                     let seasonHtml = '';
                     let seasonText = '';
-                    
-                    if(p.season) { // Check for 'season' (singular, string)
-                        seasonHtml = '<br>';
-                        const sList = p.season.split(','); // Split string to array
-                        sList.forEach(s => {
-                            seasonHtml += `<span class="season-badge">${s.trim()}</span>`;
-                        });
-                        seasonText = p.season; // For search
+                    if(p.season) {
+                        const sList = p.season.split(',');
+                        sList.forEach(s => { seasonHtml += `<span class="season-badge" style="background:#6c757d">${s.trim()}</span> `; });
+                        seasonText = p.season;
                     }
 
-                    // Prepare search data string (Name + Code + Season)
-                    const searchString = `${p.name} ${p.code} ${seasonText}`.toLowerCase();
+                    let genderHtml = '';
+                    let genderText = '';
+                    if(p.gender) {
+                        const gList = p.gender.split(',');
+                        gList.forEach(g => { 
+                            let color = g.trim() === 'Men' ? '#2980b9' : '#8e44ad';
+                            genderHtml += `<span class="season-badge" style="background:${color}">${g.trim()}</span> `; 
+                        });
+                        genderText = p.gender;
+                    }
+
+                    const searchString = `${p.name} ${p.code} ${seasonText} ${genderText}`.toLowerCase();
 
                     tbody.innerHTML += `
                     <tr data-search="${searchString}">
                         <td>${img}</td>
                         <td>
-                            ${p.name}
-                            ${seasonHtml}
+                            <b>${p.name}</b><br>
+                            ${seasonHtml} ${genderHtml}
                         </td>
                         <td>${p.code}</td>
                         <td>৳${p.price}</td>
@@ -607,7 +841,7 @@
             const table = document.getElementById('products-table');
             const tr = table.getElementsByTagName('tr');
 
-            for (let i = 1; i < tr.length; i++) { // Skip header row
+            for (let i = 1; i < tr.length; i++) { 
                 const searchData = tr[i].getAttribute('data-search');
                 if (searchData && searchData.indexOf(filter) > -1) {
                     tr[i].style.display = "";
@@ -718,37 +952,66 @@
             else renderOrdersTable();
         }
 
+        // ==========================================
+        //  MODIFIED: VIEW ORDER (For 50% Discount Feature)
+        // ==========================================
         function viewOrder(id) {
             const order = universalOrders.get(id);
             if(!order) return alert("Error finding order");
 
             let productHtml = '';
+            let hasDiscountOffer = false;
+
             order.products.forEach(p => {
                 let img = p.image || 'https://via.placeholder.com/60';
-                
                 let displayCode = p.code;
                 if((!displayCode || displayCode === 'N/A') && p.productId) {
                     displayCode = productMap.get(p.productId) || 'N/A';
+                }
+
+                // Check for 50% discount logic (approximate or by flag)
+                // Logic: If user buys 5000tk, they get ONE item at 50%.
+                // We check if any item looks like a special offer (e.g. price is remarkably low for item)
+                // OR we can just check if total order > 5000 previously.
+                // Here we assume if an item is marked as offer or has 50% discount tag from app.
+                
+                let offerBadge = '';
+                // Simple Logic: If app sends a flag OR we assume custom check
+                // For now, let's look for a flag or significant price drop if oldPrice exists
+                if(p.discountType === '50_percent_offer' || p.isCampaignReward || (p.discount && parseInt(p.discount) >= 45)) {
+                   offerBadge = `<div class="offer-highlight">💥 50% OFF OFFER ITEM</div>`;
+                   hasDiscountOffer = true;
                 }
 
                 productHtml += `
                     <div class="order-product-item">
                         <img src="${img}" class="order-prod-img" onerror="this.src='https://via.placeholder.com/60'">
                         <div style="flex:1;">
-                            <div style="font-weight:bold;">${p.name || 'Product'}</div>
+                            <div style="font-weight:bold;">${p.name || 'Product'} ${offerBadge}</div>
                             <small>Code: <b style="color:var(--accent)">${displayCode}</b> | Qty: ${p.qty}</small>
                             <div style="font-weight:bold; color:var(--accent)">৳${p.price}</div>
                         </div>
                     </div>`;
             });
 
+            // Extra Warning if total price > 5000 (Potentially eligible for next order)
+            let extraNote = '';
+            if(parseFloat(order.totalPrice) >= 5000) {
+                extraNote = `<div style="background:#e8f5e9; color:#27ae60; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #a5d6a7;">
+                    <i class="fas fa-gift"></i> <b>যোগ্যতা অর্জন:</b> এই অর্ডারের ভ্যালু ৫০০০+ টাকা। কাস্টমার পরবর্তী অর্ডারে একটি প্রোডাক্টে ৫০% ছাড় পেতে পারে।
+                </div>`;
+            }
+
             document.getElementById('order-details-content').innerHTML = `
+                ${extraNote}
                 <div class="order-info-grid">
                     <div><b>Customer:</b> ${order.customerName}<br><b>Phone:</b> ${order.phone}<br><b>Address:</b> ${order.address}</div>
                     <div style="text-align:right"><b>ID:</b> ${id}<br><b>Date:</b> ${formatDate(order.date)}<br><b>Method:</b> ${order.paymentMethod}<br><b>Trx:</b> ${order.trxID||'N/A'}</div>
                 </div>
-                <div style="background:#fff; border:1px solid #eee; padding:10px;">${productHtml}
-                <div style="text-align:right; margin-top:10px; font-size:1.2rem;">Total: <b>৳${order.totalPrice}</b></div></div>
+                <div style="background:#fff; border:1px solid #eee; padding:10px;">
+                    ${productHtml}
+                    <div style="text-align:right; margin-top:10px; font-size:1.2rem;">Total: <b>৳${order.totalPrice}</b></div>
+                </div>
             `;
             
             let btns = `<button class="btn btn-info" onclick="printInvoice('${id}')">Print</button>`;
@@ -821,10 +1084,13 @@
                 selectedSizes = [...selectedSizes, ...customSplits];
             }
 
-            // --- FIXED: Collecting Season Data as comma-separated STRING ---
             const seasonCheckboxes = document.querySelectorAll('input[name="season"]:checked');
             const selectedSeasonsArray = Array.from(seasonCheckboxes).map(cb => cb.value);
-            const seasonString = selectedSeasonsArray.join(', '); // Convert Array to "Winter, Summer"
+            const seasonString = selectedSeasonsArray.join(', ');
+
+            const genderCheckboxes = document.querySelectorAll('input[name="gender"]:checked');
+            const selectedGenderArray = Array.from(genderCheckboxes).map(cb => cb.value);
+            const genderString = selectedGenderArray.join(', ');
 
             const p = {
                 name: document.getElementById('p-name').value,
@@ -833,7 +1099,8 @@
                 media: media,
                 colors: currentColors,
                 sizes: selectedSizes,
-                season: seasonString, // SAVING AS 'season' (String) to match App
+                season: seasonString,
+                gender: genderString,
                 category: document.getElementById('p-category').value,
                 description: document.getElementById('p-desc').value,
                 discountType: document.getElementById('p-discount-type').value,
